@@ -42,8 +42,10 @@ namespace CactEye2
         {
             this.CameraTransform = Position;
 
-            CameraWidth = (int)(Screen.width*0.4f);
-            CameraHeight = (int)(Screen.height*0.4f);
+//            CameraWidth = (int)(Screen.width * 0.4f);
+//            CameraHeight = (int)(Screen.height*0.4f);
+            CameraWidth = 400;
+            CameraHeight = 400;
 
             ScopeRenderTexture = new RenderTexture(CameraWidth, CameraHeight, 24);
             ScopeRenderTexture.Create();

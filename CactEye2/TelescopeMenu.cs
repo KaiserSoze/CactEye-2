@@ -31,6 +31,13 @@ namespace CactEye2
         private bool GyroEnabled = false;
 
         private Rect ScopeRect;
+        private Rect UpRect;
+        private Rect DownRect;
+        private Rect LeftRect;
+        private Rect RightRect;
+        private Rect RangeRect;
+        private Rect PointerRect;
+        private Rect CenterRect;
 
         private CactEyeCamera CameraModule;
 
@@ -42,6 +49,14 @@ namespace CactEye2
         private Texture2D Atom6Icon = null;
         private Texture2D Back9Icon = null;
         private Texture2D Forward9Icon = null;
+
+        private Texture2D UpIcon = null;
+        private Texture2D DownIcon = null;
+        private Texture2D RightIcon = null;
+        private Texture2D LeftIcon = null;
+        private Texture2D CenterIcon = null;
+        private Texture2D RangeBG = null;
+        private Texture2D PointerIcon = null;
 
         //private ModuleReactionWheel[] ReactionWheels;
         private List<CactEyeProcessor> Processors = new List<CactEyeProcessor>();
@@ -74,11 +89,21 @@ namespace CactEye2
             Back9Icon = GameDatabase.Instance.GetTexture("CactEye/Icons/back19", false);
             Forward9Icon = GameDatabase.Instance.GetTexture("CactEye/Icons/forward19", false);
 
+            UpIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/Up", false);
+            DownIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/Down", false);
+            LeftIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/Left", false);
+            RightIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/Right", false);
+            CenterIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/Center", false);
+            RangeBG = GameDatabase.Instance.GetTexture("CactEye/Icons/Range", false);
+            PointerIcon = GameDatabase.Instance.GetTexture("CactEye/Icons/Pointer", false);
+
             //Create the window rectangle object
             float StartXPosition = Screen.width * 0.1f;
             float StartYPosition = Screen.height * 0.1f;
-            float WindowWidth = Screen.width * ScreenToGUIRatio;
-            float WindowHeight = Screen.height * ScreenToGUIRatio;
+ //           float WindowWidth = Screen.width * ScreenToGUIRatio;
+ //           float WindowHeight = Screen.height * ScreenToGUIRatio;
+            float WindowWidth = 664.0f;
+            float WindowHeight = 528.0f;
             WindowPosition = new Rect(StartXPosition, StartYPosition, WindowWidth, WindowHeight);
             
             //Attempt to create the Telescope camera object.
@@ -146,8 +171,31 @@ namespace CactEye2
                 Toggle();
             }
 
+            //Draw fine tuning controls
+            //Define Button Rectangles
+            UpRect = new Rect(516, 64, 32, 32);
+            CenterRect = new Rect(516, 106, 32, 32);
+            LeftRect = new Rect(474, 106, 32, 32);
+            RightRect = new Rect(558, 106, 32, 32);
+            DownRect = new Rect(516, 148, 32, 32);
+            RangeRect = new Rect(457, 212, 150, 150);
+
+            //draw area
+            GUI.Button(UpRect, UpIcon);
+            GUI.Button(CenterRect, CenterIcon);
+            GUI.Button(LeftRect, LeftIcon);
+            GUI.Button(RightRect, RightIcon);
+            GUI.Button(DownRect, DownIcon);
+            GUI.DrawTexture(RangeRect, RangeBG);
+
+
+
+            GUILayout.BeginVertical(GUILayout.Width(400.0f));
+           
             //What you see looking through the telescope.
-            ScopeRect = GUILayoutUtility.GetRect(Screen.width * 0.4f, Screen.width*0.4f);
+//            ScopeRect = GUILayoutUtility.GetRect(Screen.width * 0.4f, Screen.width * 0.4f);
+//            GUILayout.Space(32f);
+            ScopeRect = GUILayoutUtility.GetRect(400, 400);
             Texture2D ScopeScreen = CameraModule.UpdateTexture(ActiveProcessor);
             GUI.DrawTexture(ScopeRect, ScopeScreen);
 
@@ -202,7 +250,6 @@ namespace CactEye2
                 FieldOfView = GUILayout.HorizontalSlider(FieldOfView, 0f, 1f);
                 CameraModule.FieldOfView = 0.5f * Mathf.Pow(4f - FieldOfView * (4f - Mathf.Pow(ActiveProcessor.GetMinimumFOV(), (1f / 3f))), 3);
                 GUILayout.EndHorizontal();
-
                 //Log spam
                 //Debug.Log("CactEye 2: MinimumFOV = " + ActiveProcessor.GetMinimumFOV().ToString());
             }
@@ -231,6 +278,10 @@ namespace CactEye2
 
                 SetTorgue();
             }
+            GUILayout.EndVertical();
+
+           
+            
 
             //Make the window draggable by the top bar only.
             GUI.DragWindow(new Rect(0, 0, WindowPosition.width, 16));
@@ -353,7 +404,8 @@ namespace CactEye2
             //Draw save icon
             if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && ActiveProcessor.GetProcessorType().Contains("Wide Field"))
             {
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), SaveScreenshotTexture))
+//                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), SaveScreenshotTexture))
+                if(GUI.Button(new Rect(537, 394, 32, 32), SaveScreenshotTexture))
                 {
                     //DisplayText("Saved screenshot to " + opticsModule.GetTex(true, targetName));
                     Notification = " Screenshot saved to " + WriteTextureToDrive(CameraModule.TakeScreenshot(ActiveProcessor));
@@ -366,7 +418,8 @@ namespace CactEye2
             //<div>Icons made by Freepik from <a href="http://www.flaticon.com" title="Flaticon">www.flaticon.com</a>         is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0">CC BY 3.0</a></div>
             if (FlightGlobals.fetch.VesselTarget != null && ActiveProcessor && HighLogic.CurrentGame.Mode != Game.Modes.SANDBOX)
             {
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Atom6Icon))
+//                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 20), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Atom6Icon))
+                if (GUI.Button(new Rect(495, 394, 32, 32), Atom6Icon))
                 {
                     //DisplayText("Saved screenshot to " + opticsModule.GetTex(true, targetName));
                     //ActiveProcessor.GenerateScienceReport(TakeScreenshot(ActiveProcessor.GetType()));
@@ -390,7 +443,8 @@ namespace CactEye2
             if (Processors.Count<CactEyeProcessor>() > 1)
             {
                 //Previous button
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Back9Icon))
+//                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) - 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Back9Icon))
+                if (GUI.Button(new Rect(453, 394, 32, 32), Back9Icon))
                 {
                     ActiveProcessor.Active = false;
                     ActiveProcessor = GetPrevious(Processors, ActiveProcessor);
@@ -398,7 +452,8 @@ namespace CactEye2
                 }
 
                 //Next Button
-                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Forward9Icon))
+//                if (GUI.Button(new Rect(ScopeRect.xMin + ((0.5f * ScopeRect.width) + 72), ScopeRect.yMin + (ScopeRect.height - 48f), 32, 32), Forward9Icon))
+                if (GUI.Button(new Rect(579, 394, 32, 32), Forward9Icon))
                 {
                     ActiveProcessor.Active = false;
                     ActiveProcessor = GetNext(Processors, ActiveProcessor);
